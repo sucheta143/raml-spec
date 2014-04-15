@@ -73,22 +73,40 @@
                                 <a class="active" href="#step-introduction">Introduction: RAML 200 Tutorial</a>
                             </li>
                             <li>
-                                <a href="#step-enter-root">Step 1: Enter the Root</a>
+                                <a href="#setting-up-the-workspace">Setting up the workspace</a>
                             </li>
                             <li>
-                                <a href="#step-enter-resources">Step 2: Enter Resources</a>
+                                <a href="#use-case-description">Use case description</a>
                             </li>
                             <li>
-                                <a href="#step-enter-methods">Step 3: Enter Methods</a>
+                                <a href="#step0-base-raml-file">Step 0: Base RAML file</a>
                             </li>
                             <li>
-                                <a href="#step-enter-uri-params">Step 4: Enter URI Parameters</a>
+                                <a href="#step1-body-parameters">Step 1: Body Parameters</a>
                             </li>
                             <li>
-                                <a href="#step-enter-query-params">Step 5: Enter Query Parameters</a>
+                                <a href="#step2-extract-schemas">Step 2: Extract Schemas</a>
                             </li>
                             <li>
-                                <a href="#step-enter-responses">Step 6: Enter Responses</a>
+                                <a href="#step3-introducing-resource-types">Step 3: Introducing Resource Types</a>
+                            </li>
+                            <li>
+                                <a href="#step4-free-parameters">Step 4: Free Parameters</a>
+                            </li>
+                            <li>
+                                <a href="#step5-includes">Step 5: Includes</a>
+                            </li>
+                            <li>
+                                <a href="#step6-hard-stop">Step 6: Hard Stop</a>
+                            </li>
+                            <li>
+                                <a href="#step7-traits">Step 7: Traits</a>
+                            </li>
+                            <li>
+                                <a href="#step8-includes-2ndpart">Step 8: Includes (second part)</a>
+                            </li>
+                            <li>
+                                <a href="#conclusion">Conclusion</a>
                             </li>
                         </ul>
                     </nav>
@@ -98,11 +116,30 @@
                     <div class="tutorial-intro">
                         <p><strong>Objective:</strong> Once you got familiar with the <a href="./docs.html"> basics of RAML</a>, it's time to move on and get into more complex features of the language itself, that will allow you to take full advantadge of it.</p>
                         <h4><i>Introduction</i></h4>
-                        <p>This tutorial will guide you through a complete use case by showing how to optimize and reuse your code.</p>
+                        <p>This tutorial will guide you through a complete use case by showing how to optimize and reuse your code
+                          by applying concepts such as <i>resourceTypes and traits</i> and RAML utilities such as <i>includes</i>.
+                          The tutorial will also introduce the concept of <i>schemas</i> and show how to use these to validate an <i>HTTP body</i></p>
                         <h4><i>Assumptions</i></h4>
                         <p>You know the <a href="./docs.html">basics of RAML</a>: how to write a RAML file, resources, parameters, methods, and responses.</p>
+                        <h4><i>Hands on!</i></h4>
+                        <p>This tutorial will be explaining and showing snippets of RAML definitions. However, the best approach to learn
+                        the presneted concepts, is to <i>hands on</i> and play with the code.<br />
+                        With this purpose, you can easily setup a workspace, play and mess with the code, and reset it to any of the steps of this tutorial.
+                        </p>
                     </div>
-                    <h2 id="step-enter-root"><strong>Step 1:</strong> Use Case description</h2>
+
+                    <h2 id="setting-up-the-workspace">Setting up the workspace</h2>
+                    <p>If you decided to "hands on", please clone the GitHub repository</p>
+                    <pre><code>git clone https://github.com/mulesoft/raml-tutorial-200.git</code></pre>
+                    <p><strong>Spoiler alert:</strong> After cloning, the repository will be in its final state.
+                    You can browse the code as it is, but it will be like reading the last chapter of a book.</p>
+                    <p>Before each step, it will be possible (and recommended) to "sync" the code with the step you are about to read, like</p>
+                    <pre><code>git checkout -f [stepX]</code></pre>
+                    <p>Note: after clonning the repository, you will need to access to its folder on your local computer.
+                    This step will be reminded on each step.</p>
+
+
+                    <h2 id="use-case-description">Use Case description</h2>
                     <p>You are helping to build a music Jukebox. While the physical device will be responsible for displaying the information, and capturing the user input, it will be relying on your API to get the contents. The Jukebox needs to be able to:</p>
                       <ul>
                         <li>Show the full list of artists.</li>
@@ -117,178 +154,427 @@
                       </ul>
                       <p><strong>Consideration</strong>: This is a jukebox, not a command line. People in pubs might be unable to type lot of characters, so, a user friendly UI (paging, pictures-based, etc) would be very appretiated.
                   </p>
-                    
-                    <h2 id="step-enter-resources"><strong>Step 2:</strong> Base RAML file</h2>
-                    <p>After a couple of minutes, you came up with the first version of your RAML file. You attended to the requirements list described in the use case.</p>
-                    <p><strong>Recalling how your API consumers will use your API, enter the following three resources under your root:</strong></p>
-                    <pre>
-                        <code>
-<span class="ln">1  </span><span class="l3">/users:</span>
-<span class="ln">2  </span><span class="l3">/authors:</span>
-<span class="ln">3  </span><span class="l3">/books:</span>
-                        </code>
-                    </pre>
-                    <p>Notice that these resources all begin with a backslash (/). In RAML, this is how you indicate a resource. Any methods and parameters nested under these top level resources belong to and act upon that resource. Now, since each of these resources is a collection of individual objects (specific authors, books, and users), we'll need to define some sub-resources to fill out the collection.</p>
-                    <p><strong>Nested resources are useful when you want to call out a particular subset of your resource in order to narrow it. For example:</strong></p>
-                    <pre>
-                        <code>
-<span class="ln">1  </span><span class="l3">/authors:</span>
-<span class="ln">2  </span><span class="l3">  /{authorname}:</span>
-                        </code>
-                    </pre>
-                    <p>This lets the API consumer interact with the key resource and its nested resources. For example a GET request to http://api.e-bookmobile.com/authors/Mary_Roach returns details about science writer and humorist Mary Roach. Now, let's think about what we want developers and API consumers to DO.</p>
-                    <h2 id="step-enter-methods"><strong>Step 3:</strong> Enter Methods</h2>
-                    <p>Here's where it starts to get interesting, as you decide what you want the developer to be able to do with the resources you've made available. <strong>Let's quickly review the 4 most common HTTP verbs:</strong></p>
-                    <p><strong>GET</strong> - Retrieve the information defined in the request URI.</p>
-                    <p><strong>PUT</strong> - Replace the addressed collection. At the object-level, create or update it.</p>
-                    <p><strong>POST</strong> - Create a new entry in the collection. This method is generally not used at the object-level.</p>
-                    <p><strong>DELETE</strong> - Delete the information defined in the request URI.</p>
-                    <p>You can add as many methods as you like to each resource of your BookMobile API, at any level. However, each HTTP method can only be used once per resource. Do not overload the GET (you know who you are).</p>
-                    <p>In this example, you want developers to be able to work at the collection level. For example, your API consumers can retrieve a book from the collection (GET), add a book (POST), or update the entire library (PUT). You do not want them to be able to delete information at the highest level. Let's focus on building out the /books resource.</p>
-                    <p><strong>Nest the methods to allow developers to perform these actions under your resources. Note that you must use lower-case for methods in your RAML API definition:</strong></p>
-                    <pre>
-                        <code>
-<span class="ln">1  </span><span class="l3">/books:</span>
-<span class="ln">2  </span><span class="l4">  get:</span>
-<span class="ln">3  </span><span class="l4">  post:</span>
-<span class="ln">4  </span><span class="l4">  put:</span>
-                        </code>
-                    </pre>
-                    <h2 id="step-enter-uri-params"><strong>Step 4:</strong> Enter URI Parameters</h2>
-                    <p>The resources that we defined are collections of smaller, relevant objects. You, as the thoughtful API designer, have realized that developers will most likely want to act upon these more granular objects. Remember the example of nested resources above? /authors is made up of individual authors, referenced by {authorName}, for example. This is a URI parameter, denoted by surrounding curly brackets in RAML:</p>
-                    <pre>
-                        <code>
-<span class="ln">1  </span><span class="l3">/books:</span>
-<span class="ln">2  </span><span class="l3">  /{bookTitle}:</span>
-                        </code>
-                    </pre>
-                    <p>So, to make a request to this nested resource, the URI for Mary Roach's book, Stiff would look like http://api.e-bookmobile.com/v1/books/Stiff</p>
-                    <p><strong>Time to edit your spec to reflect the inherent granular characteristics of your resources:</strong></p>
-                    <pre>
-                        <code>
-<span class="ln">1  </span><span class="l3">/books:</span>
-<span class="ln">2  </span><span class="l4">  get:</span>
-<span class="ln">3  </span><span class="l4">  put:</span>
-<span class="ln">4  </span><span class="l4">  post:</span>
-<span class="ln">5  </span><span class="l3">  /{bookTitle}:</span>
-<span class="ln">6  </span><span class="l4">    get:</span>
-<span class="ln">7  </span><span class="l4">    put:</span>
-<span class="ln">8  </span><span class="l4">    delete:</span>
-<span class="ln">9  </span><span class="l3">    /author:</span>
-<span class="ln">10  </span><span class="l4">     get:</span>
-<span class="ln">11  </span><span class="l3">   /publisher:</span>
-<span class="ln">12  </span><span class="l4">     get:</span>
-                        </code>
-                    </pre>
-                    <h2 id="step-enter-query-params"><strong>Step 5:</strong> Enter Query Parameters</h2>
-                    <p>Great job so far! Now, let's say you want your API to allow even more powerful operations. You already have collections-based resource types that are further defined by object-based URI parameters. But you also want developers to be able perform actions like filtering a collection. Query parameters are a great way to accomplish this.</p>
-                    <p><strong>Start by adding some query parameters under the GET method for books. These can be specific characteristics, like the year a book was published:</strong></p>
-                    <pre>
-                        <code>
-<span class="ln">1  </span><span class="l3">/books:</span>
-<span class="ln">2  </span><span class="l4">  get:</span>
-<span class="ln">3  </span><span class="l5">    queryParameters:</span>
-<span class="ln">4  </span><span class="l5">      author:</span>
-<span class="ln">5  </span><span class="l5">      publicationYear:</span>
-<span class="ln">6  </span><span class="l5">      rating:</span>
-<span class="ln">7  </span><span class="l5">      isbn:</span>
-<span class="ln">8  </span><span class="l4">  put:</span>
-<span class="ln">9  </span><span class="l4">  post:</span>
-                        </code>
-                    </pre>
-                    <p>Query parameters may also be something that the server requires to process the API consumer's request, like an access token. Often, you need security authorization to alter a collection or record. <strong>Nest the access-token query parameter under the PUT method for a specific title:</strong></p>
-                    <pre>
-                        <code>
-<span class="ln">1  </span><span class="l3">/books:</span>
-<span class="ln">2  </span><span class="l3">  /{bookTitle}</span>
-<span class="ln">3  </span><span class="l4">    get:</span>
-<span class="ln">4  </span><span class="l5">      queryParameters:</span>
-<span class="ln">5  </span><span class="l5">        author:</span>
-<span class="ln">6  </span><span class="l5">        publicationYear:</span>
-<span class="ln">7  </span><span class="l5">        rating:</span>
-<span class="ln">8  </span><span class="l5">        isbn:</span>
-<span class="ln">9  </span><span class="l4">    put:</span>
-<span class="ln">10  </span><span class="l5">     queryParameters:</span>
-<span class="ln">11  </span><span class="l5">       access_token:</span>
-                        </code>
-                    </pre>
-                    <p>An API's resources and methods often have a number of associated query parameters. Each query parameter may have any number of optional attributes to further define it. The Quick reference guide contains a full listing.</p>
-                    <p><strong>Now, specify attributes for each of the query parameters you defined above. As always, be as complete in your documentation as possible:</strong></p>
-                    <pre>
-                        <code>
-<span class="ln">1  </span><span class="l3">/books:</span>
-<span class="ln">2  </span><span class="l3">  /{bookTitle}</span>
-<span class="ln">3  </span><span class="l4">    get:</span>
-<span class="ln">4  </span><span class="l5">      queryParameters:</span>
-<span class="ln">5  </span><span class="l5">        author:</span>
-<span class="ln">6  </span><span class="l5">          displayName:</span> <span class="val">Author</span>
-<span class="ln">7  </span><span class="l5">          type:</span> <span class="val">string</span>
-<span class="ln">8  </span><span class="l5">          description:</span> <span class="val">An author's full name</span>
-<span class="ln">9  </span><span class="l5">          example:</span> <span class="val">Mary Roach</span>
-<span class="ln">10  </span><span class="l5">         required:</span> <span class="val">false</span>
-<span class="ln">11  </span><span class="l5">       publicationYear:</span>
-<span class="ln">12  </span><span class="l5">         displayName:</span> <span class="val">Pub Year</span>
-<span class="ln">13  </span><span class="l5">         type:</span> <span class="val">number</span>
-<span class="ln">14  </span><span class="l5">         description:</span> <span class="val">The year released for the first time in the US</span>
-<span class="ln">15  </span><span class="l5">         example:</span> <span class="val">1984</span>
-<span class="ln">16  </span><span class="l5">         required:</span> <span class="val">false</span>
-<span class="ln">17  </span><span class="l5">       rating:</span>
-<span class="ln">18  </span><span class="l5">         displayName:</span> <span class="val">Rating</span>
-<span class="ln">19  </span><span class="l5">         type: <span class="val">number</span>
-<span class="ln">20  </span><span class="l5">         description:</span> <span class="val">Average rating (1-5) submitted by users</span>
-<span class="ln">21  </span><span class="l5">         example:</span> <span class="val">3.14</span>
-<span class="ln">22  </span><span class="l5">         required:</span> <span class="val">false</span>
-<span class="ln">23  </span><span class="l5">       isbn:</span>
-<span class="ln">24  </span><span class="l5">         displayName:</span> <span class="val">ISBN</span>
-<span class="ln">25  </span><span class="l5">         type:</span> <span class="val">string</span>
-<span class="ln">26  </span><span class="l5">         minLength:</span> <span class="val">10</span>
-<span class="ln">27  </span><span class="l5">         example:</span> <span class="val">0321736079?</span>
-<span class="ln">28  </span><span class="l4">    put:</span>
-<span class="ln">29  </span><span class="l5">      queryParameters:</span>
-<span class="ln">30  </span><span class="l5">        access_token:</span>
-<span class="ln">31  </span><span class="l5">          displayName:</span> <span class="val">Access Token</span>
-<span class="ln">32  </span><span class="l5">          type:</span> <span class="val">string</span>
-<span class="ln">33  </span><span class="l5">          description:</span> <span class="val">Token giving you permission to make call</span>
-<span class="ln">34  </span><span class="l5">          required: <span class="val">true</span>
-                        </code>
-                    </pre>
-                    <p>To make a PUT call, your URI looks like http://api.e-bookmobile.com/books/Stiff?access_token=ACCESS TOKEN</p>
-                    <h2 id="step-enter-responses"><strong>Step 6:</strong> Enter Responses</h2>
-                    <p>Responses MUST be a map of one or more HTTP status codes, and each response may include descriptions, examples, or schemas. Schemas are more fully explained in the Level 200 tutorial.</p>
-                    <pre>
-                        <code>
-<span class="ln">1  </span><span class="l3">/books:</span>
-<span class="ln">2  </span><span class="l3">  /{bookTitle}:</span>
-<span class="ln">3  </span><span class="l4">    get:</span>
-<span class="ln">4  </span><span class="l5">      description:</span> <span class="val">Retrieve a specific book title</span>
-<span class="ln">5  </span><span class="l5">      responses:</span>
-<span class="ln">6  </span><span class="l5">        200:</span>
-<span class="ln">7  </span><span class="l5">          body:</span>
-<span class="ln">8  </span><span class="l5">            application/json:</span>
-<span class="ln">9  </span><span class="l5">              example:</span> <span class="l1">|</span>
-<span class="ln">10  </span><span class="l1">               {</span>
-<span class="ln">11  </span><span class="l1">                 "data": {</span>
-<span class="ln">12  </span><span class="l1">                   "id": "SbBGk",</span>
-<span class="ln">13  </span><span class="l1">                   "title": "Stiff: The Curious Lives of Human Cadavers",</span>
-<span class="ln">14  </span><span class="l1">                   "description": null,</span>
-<span class="ln">15  </span><span class="l1">                   "datetime": 1341533193,</span>
-<span class="ln">16  </span><span class="l1">                   "genre": "science",</span>
-<span class="ln">17  </span><span class="l1">                   "author": "Mary Roach",</span>
-<span class="ln">18  </span><span class="l1">                   "link": "http://e-bookmobile.com/books/Stiff",</span>
-<span class="ln">19  </span><span class="l1">                 },</span>
-<span class="ln">20  </span><span class="l1">                 "success": true,</span>
-<span class="ln">21  </span><span class="l1">                 "status": 200</span>
-<span class="ln">22  </span><span class="l1">               }</span>
-                        </code>
-                    </pre>
-                    <p><strong>Congratulations! You've just written your first API definition in RAML.</strong></p><br /><br />
-                </div>
-            </section>
+
+                    <h2 id="step0-base-raml-file"><strong>STEP 0:</strong> Base RAML file</h2>
+                    <p>Reset your workspace:</p>
+                    <pre><code>git checkout -f step0</code></pre>
+                    <p>If you have read the <a href="docs.html">RAML 100 Tutorial</a>, you should be able to understand our base RAML file without major difficulties. Its basic structure could be described as:
+<pre>
+    <code>
+    /songs
+      get
+      post
+      /{songId}
+        get
+        /file-content
+          get
+          post
+    /artists
+      get
+      post
+        /{artistId}
+          get
+          /albums
+            get
+    /albums
+      get
+      post
+        /{albumId}
+          get
+          /songs
+            get
+    </code>
+</pre>
+<p>If you look into <i>jukebox-api.raml</i> you will find all the resources defined, their GETs methods described, and POSTs methods almost empty. </p>
+<p>As you can see in the following example (extracted from <i>jukebox-api.raml</i>), the resource "/songs" doesn't have a well defined POST: body parameters are missing.</p>
+<script src="https://gist.github.com/nohorbee/10155085.js"></script>
+                    <h2 id="step1-body-parameters"><strong>STEP 1: </strong> Body Parameters</h2>
+                    <h3>Form Parameters</h3>
+                    <p>Reset your workspace:</p>
+                    <pre><code>git checkout -f step1a</code></pre>
+                    <p>There are several ways of defining the body parameters for an HTTP method. You can check the  <i>jukebox-api.raml</i> file looking for the "/songs/{songId}/file-content" definition
+                    and you will find one of these.</p>
+                    <script src="https://gist.github.com/nohorbee/10170073.js"></script>
+                    <p>"/file-content" resource represents the file to reproduce when a Jukebox user select a particular song. There are tons of ways of modeling this scenario
+                    on a RESTful API. We've chosen this one for this tutorial purposes. It doesn't mean it's a best practice at all.</p>
+                    <p>As you can see in the POST definition, its "body" contains two possible content-types. Yes, you can represent that on a RESTful API, and this is the way
+                    that RAML supports it. The "binary/octet-stream" is simple expecting for a file content to be sent as parameter. It's a valid and popular technique on
+                  APIs supporting files, however, it makes the API impossible to use from a Web Browser (at least with the purpose of uploading a file).
+                <br />
+                For the multipart/form-data (and also the application/x-www-form-urlencoded), it is possible to define a map of "formParameters", defining this map the same way
+                that the rest of the RAML ones (in this case, the "file" field is required and of type "file").
+              </p>
+              <h3>Schemas</h3>
+              <p>Reset your workspace:</p>
+              <pre><code>git checkout -f step1b</code></pre>
+              <p>A body also can be of "application/json" content-type (among others, like application/xml) and for these, the expected body parameter will be a string with a valid JSON (or XML).
+              So, this is another way of defining a method's body parameter.</p>
+              <p>One of the RAML supported features is the possibility of defining <i>schemas</i> and apply these to the body parameters as well, as it is shown on the code of <i>jukebox-api.raml</i></p>
+              <script src="https://gist.github.com/nohorbee/10176331.js"></script>
+              <p>What the example is basically saying is: "The expected parameter is a valid json, and for valid, it needs to fulfill the specified schema definition". In this case, the represented object:
+              <ul>
+                <li>Has a "songTitle" property of type "string", and it's required</li>
+                <li>Has a "albumId" property of type "string", and not only is it required, but also it needs to be 36 characters long.</li>
+              </ul></p>
+              <p>It's not the intention of this tutorial explain how JSON and XML schemas work, but you could find information about it at <a href="http://json-schema.org/">http://json-schema.org/</a> and <a href="http://www.w3.org/XML/Schema.html">http://www.w3.org/XML/Schema.html</a></p>
+
+              <h2 id="step2-extract-schemas"><strong>STEP 2: </strong> Extract schemas</h2>
+              <p>Reset your workspace:</p>
+              <pre><code>git checkout -f step2</code></pre>
+              <p>One interesting RAML feature is the possibility of extracting the schemas and reference them by using a name. There are three major advantadges of doing this, the first two might look obvious:
+              Improve RAML readability and allow reusing the schemas in several sections. The third advantadge will become clear in following sections, when trying to use "resource types" and parametrize these.</p>
+              <script src="https://gist.github.com/nohorbee/10183301.js"></script>
+              <p>As you can see in the code example, the schema described in previous sections is now being defined and referenced by the name "song". The name choice is not random, and the correct convention will
+              allow you to parametrize resource types and reuse a lot of code (this will be explained in following sections).</p>
+
+              <h2 id="step3-introducing-resource-types"><strong>STEP 3: </strong> Introducing Resource Types</h2>
+              <h3>The "collection/collection-item" pattern</h3>
+              <p><strong>We are definitively not saying that all RESTful APIs are the same</strong>, not even suggesting it. But there are some common "behaviors" that can be found
+              in tons of them. Particualrilly, if we are trying to represent "resources" that could be infered from a business model, it will probably happen to find some kind of analogy
+              with the CRUD models. Given a resource, you can <strong>c</strong>reate a new one, <strong>r</strong>etrieve one or all of them and <strong>u</strong>pdate or <strong>d</strong>elete an existing one. <br />
+              In that sense, we can easily identify an existing resource (to be fetched, deleted or updated), a new one (to be added to a collection) and the collection itself (to be retrieved)</p>
+              <script src="https://gist.github.com/nohorbee/10187702.js"></script>
+              <p>So, we found two different type of resources. The item (represented by an id), and the collection (containing all the items). It would be nice to be able to define
+              these types, and "declare" the resources of those types</p>.
+
+              <h3>Resource Types in RAML</h3>
+              <p>Luckily, there is a way to do this in RAML.</p>
+              <p>Reset your workspace:</p>
+              <pre><code>git checkout -f step3a</code></pre>
+              <p>Similar to last example code, where we only showed the resources and supported methods, this step consists in just creating the "resourceTypes" with their supported methods</p>
+              <script src="https://gist.github.com/nohorbee/10191857.js"></script>
+              <p>As you may notice, the PUT and DELETE methods are not defined for the collection-item resourceType, as you could expect. This is basically because the use case is not requesting for any resource to be deleted or updated.</p>
+              <p>So, what this version of the jukebox-api.raml is saying is "There are two resource types: collection, which has the GET and POST methods defined, and collection-item which has the GET method defined". Like that, it doesn't really seem to be
+              very useful, however, it's easy to understand as the first step of defining good resourceTypes and reusing code.</p>
+
+              <h3>Defining and parametrizing resourceTypes</h3>
+              <p>The following explanation and code snippets will guide you step by step on how to get the next version of the <i>jukebox-api.raml</i>. Nevertheless, you can see the final result by reseting your workspace.</p>
+
+              <p>Reset your workspace:</p>
+              <pre><code>git checkout -f step3b</code></pre>
+
+              <p>What we know about our collections this far? Let's check what "/songs", "/artists", and "/albums" have in common:
+                <ul>
+                  <li>Description</li>
+                  <li>GET method with:
+                    <ul>
+                      <li>a description</li>
+                      <li>a response for HTTP status 200 (which body's content type is "application/json")</li>
+                    </ul>
+                  </li>
+                  <li>POST method with:
+                    <ul>
+                      <li>a description</li>
+                      <li>an "access_token" queryParameter</li>
+                      <li>a bodyParameter with "application/json" contentType and validated by a Schema</li>
+                      <li>and a response for HTTP status 200 (which body's content type is "application/json")</li>
+                    </ul>
+                  </li>
+                </ul></p>
+                <p>
+                So, let's extract this from one of the resources (I will take "/songs" for this example, but we will end
+                parametrising the resourceType, so it doesn't matter which one you choose to start).
+              </p>
+              <script src="https://gist.github.com/nohorbee/10306814.js"></script>
+              <p>
+                  With the "collection" resourceType as it is right now, there is not much we can do. Apply it to "/songs" resource is a possibility,
+                  but we don't want that descriptions, schemas, or even the POST response to be applied to all the resources since they are "song's specifics".
+                  <br />
+                  Parameters are useful here. Suppose that you can write a "placeholder" on the resourceType to be filled with a value specified on the resource.
+                  For instance: <pre><code>description: Collection of available &lt;&lt;resource&gt;&gt; in Jukebox</code></pre></p>
+                <p>  with &lt;&lt;resource&gt;&gt; receiving "songs", "artists", or "albums" depending on the resource.<br />
+                  Well, while this is possible (and useful for most scenarios), for this particular case, it's not even necessary for the resource to pass the parameter thanks to the <strong>Reserved Parameters</strong>.<br />
+                  A <i>Reserved Parameter</i> simply is a parameter with a value automatically specified by its context. For the resourceTypes case, there are two <i>Reserved Parameters</i>: resourcePath and resourcePathName
+                  and for the "/songs" example, the values will be "/songs" and "songs" respectively.<br />
+                  But if you are looking at the last code snippet, you will realize that we need the values to be "songs" in some cases and "song" in others. <br />
+                  Here is where <strong>Parameters Transformers</strong> become handy.<br>
+                  There are two <i>Parameters Transformers</i> we could use for this example: "!singularize" and "!pluralize" (note: The only locale supported by the current verion of RAML is "United States English").<br />
+                  So, combinting this, let's replace in our latest code snippet:
+              </p>
+              <script src="https://gist.github.com/nohorbee/10310340.js"></script>
+              <p>Please, note that even the Schema name is specified by making use of this parameter (singular in this case). Do you remember when extracting the schemas at the step 2?
+                We've mentioned that the schema name was not random and that was going to be important. Well, this is why.</p>
+                <p>
+                  Another important aspect to stress out, is that defining and applying a resourceType to a resource doesn't forbid you
+                  to overwrite any of the map's elements. In this example, we still see that GET method is present in both, resource and resourceType (the same for the responses, POST, etc).
+                  Not only is this allowed, but also is the way of redefining something that changes from one resource to other. <strong>If you are thinking of inheritance, you are getting the idea right!</strong>
+                </p>
+                <p>If this is already clear, let's work with the "collection-item" resourceType.</p>
+                <p>Reset your workspace:</p>
+                <pre><code>git checkout -f step3c</code></pre>
+                <p>There is nothing new with that code. More resourceType definition, parametrization and usage</p>
+                <script src="https://gist.github.com/nohorbee/10311921.js"></script>
+                <p>But as you can see, we are still repeating lot of code. For instance:
+                <pre><code>
+get:
+  responses:
+    200:
+      body:
+        application/json:
+          example: |
+                </code></pre></p>
+                <p>
+                  Basically, every piece of code needed to define the <strong>examples</strong>. And this is basically
+                  because we have only learned how to use <i>Reserved Parameters</i>. However, we have also mentioned that
+                  the idea of parametrizing is to specify "placeholder" to be filled with a specified value.<br />
+                  That would solve our "examples problem".
+                </p>
+
+
+                <h2 id="step4-free-parameters"><strong>STEP 4: </strong> Free Parameters</h2>
+                <p>Reset your workspace:</p>
+                <pre><code>git checkout -f step4</code></pre>
+
+                <p>At the moment of defining the parameter in the resourceType (put the placeholder), there is no difference between
+                a free or reserved parameter. The actual difference appears when passing the parameter at the resource level. For instance, a parameter named as "exampleItem" will need to be passed this way:</p>
+                <pre><code>
+/{songId}:
+    type:
+      collection-item:
+        exampleItem: THIS IS THE EXAMPLE
+                </code></pre>
+                <p>
+                  In "human language", it's basically saying that "/{songId}" resource is of "collection-item" type (the same than on the previous step).
+                  But now, it's also indicating that the value for the collection-item parameter "exampleItem" is "THIS IS THE EXAMPLE". Since this is
+                  a String, all the YAML rules for Strings are valid. <br />
+                  Having said that, let's take a look at some relevant code pieces.
+                </p>
+                <script src="https://gist.github.com/nohorbee/10321155.js"></script>
+                <p>
+                  As you can see, the same concept shown at the previous example, was applied to the entire "/songs", and "/songs/{songId}" resources.<br />
+                  The code that was being repeated at the end of the step 3, is now completly on the resourceType at the point that the POST definition, directly disappeared
+                  from the resources. <strong>That's correct. Now, every "collection-item" typed resources will have a valid (generic) POST definition without even writting it.</strong>
+                </p>
+
+                <h2 id="step5-includes"><strong>STEP 5: </strong> Includes</h2>
+                <p>Reset your workspace:</p>
+                <pre><code>git checkout -f step5</code></pre>
+
+                <p>We have improved our RAML definition a lot on last step by using <i>resourceTypes</i>. We were able to
+                extract common members of the resources and encapsulate these on some kind of structure that grants
+                inheritance-like capabilitites.<br />
+                Nevertheless, the RAML file still contains lot of information that could be considered as "not API-describing"
+                or at least "economy-class" members <strong>"Equally important, but not necessarilly part of the main RAML file".<br />
+                </strong>
+                Through <strong>includes</strong>, RAML allows us to build file-distributed API definitions, which not only
+                is useful to encourage code reuse, but also improves the definition readability.<br />
+                In this step, we are going to extract the examples used for "/songs" resource to different files and include
+                these in the main RAML definition.</p>
+
+                <script src="https://gist.github.com/nohorbee/10606210.js"></script>
+                <p>
+                  As you can see, the extracted files contains raw strings. It's important to stress out that
+                  every included file, is treated as a string by RAML, which presents some well known restrictions regarding with
+                  the way to distribute the definition among files. More than limitations, those restrictions attempt to
+                  define a common way to work with <i>includes</i>, to avoid free form defined APIs. Remember that
+                  one of the RAML major goals, is to unify criteria after all.
+                  <br />
+                  The following code snippet shows how to include or "call" the extracted files from the main definition.
+                  </p>
+                  <script src="https://gist.github.com/nohorbee/10607209.js"></script>
+                  <p>
+                    As it's being shown on the last code snippet, RAML features encourage you to reduce the quantity of
+                    code you need to write, while making it more reusable and maintainable.
+                  </p>
+
+                <h2 id="step6-hard-stop"><strong>STEP 6: </strong> Hard Stop</h2>
+
+                <p>We have introduced several features and made great progress with our API definition, but aren't we
+                missing something? We have just focused on "/songs" resource (and descending branch). If you check your
+                RAML file right now, you will discover that all other resources are still not taking advangadge
+              of all the work we have done.<br />
+            Let's solve that right now! Repeat the same procedures for all the resources (identify and apply the collection and collection-item pattern
+            , pass the correct parameters, and extract the belonging examples into separated files). When you finish with that
+          your workspace should look like the following one:</p>
+
+                <p>Reset your workspace:</p>
+                <pre><code>git checkout -f step6a</code></pre>
+            <p>
+              As you might notice, the quantity of lines in the RAML file has been reduced a lot and there are more files than before. Most important: It's simpler!<br />
+              But not everything went that well and smooth. If you look carefully, there is a problem with sub-collections (/artists/{artistId}/albums and /albums/{albumId}/songs). Since
+              these aren't the main collection of each resource, we had decided not to allow new elements to be created on them. In other words,
+              these collections were READ-ONLY. When applying "collection" resourceType, we have automatically added the "POST" method to these. As an additional
+              consequence, the RAML definition now requires the "exampleItem" parameter to be passed for those resources too (which we have resoved temporarily by passing "{}")
+            </p>
+              <script src="https://gist.github.com/nohorbee/10608008.js"></script>
+            <p>
+              Well, that's ackward but not a big deal, and it will actually help us to go further in order to solve it.<br />
+              Let's just create another resourceType called "readOnlyCollection". It will be similar to "collection" but without the "POST method".
+              And let's apply this new resourceType to the belonging collections.
+            </p>
+            <script src="https://gist.github.com/nohorbee/10608263.js"></script>
+            <p>The result should be similar to the step6b workspace.</p>
+
+            <p>Reset your workspace:</p>
+            <pre><code>git checkout -f step6b</code></pre>
+
+            <p>
+              If you are follwing the code in detail, you will have already notice something. "collection" and "readOnlyCollection" resourceTypes are
+              repeating some code. Actually, "readOnlyCollection" code is completly included in "collection" code. You are right! And there is a way
+              of making this more efficient. It's all about "types composing" and it will be totally covederd on some other tutorial.
+            </p>
+
+            <h2 id="step7-traits"><strong>STEP 7: </strong> Traits</h2>
+
+            <p>
+              We are almost done. Actually, we are fulfilling all the requirements for the described use case. But as usual,
+              we discover something while building, and this tutorial cannot be the exception.<br />
+              Won't I be able to sort my collections? Shouldn't my API give the chance of paging these? And by the way,
+              is the strategy we choose for searching on a collection good enough? What if we need to enhance and make
+              more complex queries in the future?<br />
+              Let's tackle down these issues. First, we need to understand in right.
+            </p>
+            <h3>Understanding our resources</h3>
+            <p>Let's build a simple table to discover and agree about each collection capabilities:</p>
+            <table>
+              <tr>
+                <td>Collection/Capabilities</td>
+                <td>Searchable</td>
+                <td>Sortable</td>
+                <td>Pageable</td>
+              </tr>
+              <tr>
+                <td>/songs</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>/artists</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>/albums</td>
+                <td>Yes</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>/artists/albums</td>
+                <td>No</td>
+                <td>Yes</td>
+                <td>Yes</td>
+              </tr>
+              <tr>
+                <td>/albums/songs</td>
+                <td>No</td>
+                <td>Yes</td>
+                <td>No</td>
+              </tr>
+            </table>
+
+            <p>If we considered who will be consuming the API, this table would probably be different (small collections can be filtered, ordered and paged on the client side).
+            We are keeping it anyway for this tutorial purposes.</p>
+
+            <h3>Fixing the Searchable collections</h3>
+            <p>Before getting involved with the Traits concept, let's enhance the Searchable fixed parameters by applying
+            a generic "query" queryParameter.</p>
+
+            <script src="https://gist.github.com/nohorbee/10609051.js"></script>
+
+            <p>If you reset your workspace, you will see this enhancement applied to every Searchable resource</p>
+
+            <p>Reset your workspace:</p>
+            <pre><code>git checkout -f step7a</code></pre>
+<br />
+
+            <h3>Searchable Trait</h3>
+            <p>The same way that several resources could belong to a specific resourceType, it's possible to define
+              and reuse similar behavior by wirting <b>traits</b>. This is one of these concepts that are better
+            explained by code:</p>
+
+            <script src="https://gist.github.com/nohorbee/10644334.js"></script>
+
+            <p>
+              As you can see, this Trait is composed by a name and the applicable parameter. It's also shown in the example
+              that <i>traits</i> can also be parametrized.<br />
+              Let's check how a Trait can be applied:
+            </p>
+            <script src="https://gist.github.com/nohorbee/10644884.js"></script>
+
+
+
+<p>So, what the definition is really saying is that, there is a trait called "Searchable", and the "/songs" resource applies it.
+Further than that, the trait is applied to the method "GET" itself, since the "Searchable" contract should only be applied to it. In other cases, you could apply
+a Trait to the whole resource, and even more: <strong>traits can also be applied to resourceTypes</strong>. This topic should and will be
+covered in a separated tutorial (types composition). Feel free to try this out anyway, always remember that you can: </p>
+<p>Reset your workspace:</p>
+<pre><code>git checkout -f step7b</code></pre>
+<p>Note that in the step7b workspace, we have already applied the Searchable trait to "/songs", "/artists" and "/albums" resources.</p>
+
+<h3>Other traits</h3>
+<p>Well, considering the table we built, we would need to create 2 additional traits: Orderable and Pageable. The creation is trivial, and when applied, we end
+confirming something that could have been seen on the previous step: Traits are a collection (that's why they are applied within an array).</p>
+
+<script src="https://gist.github.com/nohorbee/10659950.js"></script>
+
+<p>In this case, you can see that the "Pageable" trait receives no parameter.<br />
+Go ahead! Apply the proper traits to the proper resources as we defined on the table.<br />
+Once done, the code should look like the one on step7c</p>
+
+<p>Reset your workspace:</p>
+<pre><code>git checkout -f step7c</code></pre>
+<br />
+
+<h3>The hidden trait</h3>
+<p>Have you noticed another "piece of code"/"behavior or contract" that is being repeated in our RAML definition? No? Well, that's because it's kind of hidden
+by a resourceType.<br />
+Remember the use case description? For the writeable collections the user needs to have some specific access permission.
+We had implemented this by adding an "access_token" queryParameter to the "POST" methods of these resources, and after a couple of
+steps, we extracted that piece of code to the "collection" resourceType.<br />
+While technically, there isn't anything wrong with that, conceptually, the parameter could be added by implementing a trait (since it's more signature related than type itself), and of course
+as it has been said, it can be applied then at resourceType level (in this case, "collection" that is writeable will have it).</p>
+
+<script src="https://gist.github.com/nohorbee/10670731.js"></script>
+
+<p>
+  In our OOP analogy, "collection" implements "securized", and "/songs", "/artists", "/albums" extend "collection".<br />
+  You can now implement that code or simply:
+</p>
+<p>Reset your workspace:</p>
+<pre><code>git checkout -f step7d</code></pre>
+
+<h2 id="step8-includes-2ndpart"><strong>STEP 8: </strong> Includes (second part)</h2>
+<p>We could say that our RAML file has been properly refactorized and is now much more readable, reusable and maintainable. Maybe a last step would be to
+double check which parts of the RAML definition could now be extracted to other files (the same way we have done with the "examples").<br />
+Starting from the top, we find the "schemas", and it seems to be a no brainer that each JSON (in this case) could be extracted and included as we have learned</p>
+
+<p>Reset your workspace:</p>
+<pre><code>git checkout -f step8</code></pre>
+
+<p>You will see that the "schemas" section ended like:</p>
+
+<script src="https://gist.github.com/nohorbee/10671715.js"></script>
+
+<p>and of course, three new files will appear on your file system.</p>
+<p>While this doesn't seem to be a revelation (it isn't), let's keep checking our RAML file to discover what else can be extracted. Well, honestly, resourceTypes and traits are really tempting. But if
+you try to follow the same strategy, you will surely fail. Remember in previous sections that we explained that the "include" function would just take the content of the file and embeed it contents as a string? Well, that's
+precisely what we wanted to do with the examples and the schemas, but if we look at the resourceTypes and traits twice, we will notice that they are not just "strings", but maps (as the rest of the RAML file). So basically, NO! you can't
+extract these with the same approach you extracted examples and resourceTypes.<br />
+However, you could try to extract all the resourceTypes to a file (and do the same with the traits).</p>
+<pre><code>resourceTypes: !include jukebox-includes-resourceTypes.inc</code></pre>
+<p>Since this is not a restriction, it could be good to mention
+that it doesn't mean it's a recommended practice. In some cases, you will need to compromise. For example: if we had 2000 lines of resourceTypes definition, we probably will like to extract this to a separated file. But if the resourceTypes are not really
+complicating the readability, it could also be nice to be able to see how they are defined without going to a separated file. As usual, it's a matter of good judgement and criteria.</p>
+
+
+<h2 id="conclusion">Conclusion</h2>
+<p>
+  On this tutorial, we have learned how to optimize our RAML file from a code reuse and maintainibility point of view.
+  Usage of resourceTypes, traits, and includes was introduced and a full use case was developed and refactorized.<br />
+  It was also introduced the idea of "types composing" even though a deeper explanation will be provided on a separated tutorial.<br />
+  Finally, and like in every discipline, we need to apply criteria and good judgement. Always remember that overengineering is not a good idea. Not at all.
+  <br /><br /><br /><br /><br /><br /><br /><br />
+  <br /><br /><br /><br /><br />
+</p>
+            </p></div></section>
         </div>
         <div class="footer-wrapper">
             <section class="footer">
                 <div class="signup">
-<iframe name="signup-form" style="display:none" src="https://docs.google.com/a/mulesoft.com/forms/d/1n3XKLpqIU9yg5635jD33LQBT2Jo4xqUsmSGrU-nKmGs/formResponse"></iframe> 
+<iframe name="signup-form" style="display:none" src="https://docs.google.com/a/mulesoft.com/forms/d/1n3XKLpqIU9yg5635jD33LQBT2Jo4xqUsmSGrU-nKmGs/formResponse"></iframe>
                     <form action="https://docs.google.com/a/mulesoft.com/forms/d/1n3XKLpqIU9yg5635jD33LQBT2Jo4xqUsmSGrU-nKmGs/formResponse" method="POST" id="ss-form" onsubmit="" target="signup-form">
                         <label>Subscribe & learn about new RAML projects</label>
                         <input type="text" name="entry.1586103239" value="" class="ss-q-short valid" placeholder="Email Address" id="entry_1586103239" dir="auto" title="">
